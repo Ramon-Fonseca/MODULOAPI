@@ -21,6 +21,15 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// 🔹 Configura o pipeline HTTP
+app.UseRouting();
+
+// 🔹 Configura CORS
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
 // 🔹 Configura Swagger e SwaggerUI apenas no ambiente de desenvolvimento
 if (app.Environment.IsDevelopment())
 {
