@@ -9,6 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔹 Adiciona serviços de controllers
 builder.Services.AddControllers();
 
+// 🔹 Configura CORS (política mais permissiva para desenvolvimento)
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.SetIsOriginAllowed(origin => true) // Permite qualquer origem
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials();
+    });
+});
+
 // 🔹 Configura HTTPS
 builder.Services.AddHttpsRedirection(options =>
 {
@@ -21,14 +33,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// 🔹 Habilita CORS - deve ser um dos primeiros middlewares
+app.UseCors();
+
 // 🔹 Configura o pipeline HTTP
 app.UseRouting();
-
-// 🔹 Configura CORS
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
 
 // 🔹 Configura Swagger e SwaggerUI apenas no ambiente de desenvolvimento
 if (app.Environment.IsDevelopment())
@@ -37,7 +46,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "MODULOAPI v1");
-        c.RoutePrefix = "swagger"; // você acessa em http://localhost:5103/swagger
+        c.RoutePrefix = string.Empty; // Define a raiz como página inicial
+        c.ConfigObject.AdditionalItems["persistAuthorization"] = true;
     });
 }
 
